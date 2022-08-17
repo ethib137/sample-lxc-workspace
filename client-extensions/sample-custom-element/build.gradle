@@ -1,0 +1,105 @@
+import com.liferay.gradle.util.OSDetector
+import com.liferay.gradle.util.StringUtil
+
+apply plugin: "com.liferay.node"
+
+task buildExtraRemoteApp
+
+File remoteAppDir = new File(projectDir, "react-custom-element")
+
+File remoteAppCSSDir = new File(remoteAppDir, "build/css")
+File remoteAppJSDir = new File(remoteAppDir, "build")
+
+task copyfiles(type: Copy) {
+	println "Copying Files"
+
+	dependsOn buildExtraRemoteApp
+
+	from(remoteAppCSSDir) {
+		include "*.css"
+	}
+
+	from(remoteAppJSDir) {
+		include "*.js"
+	}
+
+	includeEmptyDirs = false
+
+	into file("src")
+
+	rename(/([0-9a-zA-Z-]+).*\.(css|js)$/, '$1.$2')
+}
+
+_createExtraTasks([remoteAppDir])
+
+private String _camelCase(String dirName) {
+	String suffix = dirName.replaceAll(/\-(\w)/) {
+		String s = it[1]
+
+		s.toUpperCase()
+	}
+
+	return StringUtil.capitalize(suffix)
+}
+
+private void _createExtraTasks(List<File> dirs) {
+	dirs.each {
+		File dir ->
+
+		File packageJSONFile = new File(dir, "package.json")
+
+		if (!packageJSONFile.exists()) {
+			return
+		}
+
+		println "Adding install task for " + packageJSONFile
+
+		Task yarnInstallTask = tasks.create(name: "yarnInstall" + _camelCase(dir.name), type: Exec) {
+			println 'Running Yarn Install'
+
+			if (OSDetector.windows) {
+				executable "cmd.exe"
+
+				args "/c"
+				args new File(node.nodeDir, "node.exe")
+				args new File(node.nodeDir, "node_modules/yarn/yarn-" + node.yarnVersion + ".js")
+			}
+			else {
+				executable new File(node.nodeDir, "bin/node")
+
+				args new File(node.nodeDir, "lib/node_modules/yarn/yarn-" + node.yarnVersion + ".js")
+			}
+
+			args "install"
+			dependsOn downloadNode
+			workingDir dir
+		}
+
+		println "Adding build task for " + packageJSONFile
+
+		Task yarnBuildTask = tasks.create(name: "yarnBuild" + _camelCase(dir.name), type: Exec) {
+			println 'Running Yarn Build'
+
+			if (OSDetector.windows) {
+				executable "cmd.exe"
+
+				args "/c"
+				args new File(node.nodeDir, "node.exe")
+				args new File(node.nodeDir, "node_modules/yarn/yarn-" + node.yarnVersion + ".js")
+			}
+			else {
+				executable new File(node.nodeDir, "bin/node")
+
+				args new File(node.nodeDir, "lib/node_modules/yarn/yarn-" + node.yarnVersion + ".js")
+			}
+
+			args "build"
+			dependsOn yarnInstallTask
+			workingDir dir
+		}
+
+		buildExtraRemoteApp.dependsOn yarnBuildTask
+	}
+}
+
+build.dependsOn copyfiles
