@@ -1,0 +1,13 @@
+{
+  "name": "react-custom-element",
+  "version": "1.0.0",
+  "description": "React Custom Element",
+  "dependencies": {
+    "@liferay/dxp-7.4": "*"
+  },
+  "scripts": {
+    "build": "liferay build",
+    "clean": "liferay clean",
+    "start": "liferay start"
+  }
+}
