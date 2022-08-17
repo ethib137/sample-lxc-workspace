@@ -1,12 +1,12 @@
 sample-custom-element:
     cssURLs:
-        - style.css
-    friendlyURLMapping: vanilla-counter
-    htmlElementName: vanilla-counter
+        - styles.css
+    friendlyURLMapping: sample-custom-element
+    htmlElementName: sample-custom-element # Must match the html element name in index.js.
     instanceable: false
     name: Sample Custom Element
     portletCategoryName: category.remote-apps
     type: customElement
     urls:
         - index.js
-    useESM: false
+    useESM: true # Must be set to true in order to use Liferay's version of React.
