@@ -1,0 +1,17 @@
+code {
+	font-family: $font-family-monospace;
+}
+
+pre {
+	background: $white;
+	border: 1px solid #ddd;
+	font-size: 0.8125rem;
+	font-family: $font-family-monospace;
+	line-height: 1.25rem;
+	padding: 0.625rem 1.5625rem 0.625rem 1.25rem;
+
+	code {
+		color: $code-color;
+		font-size: $code-font-size;
+	}
+}
